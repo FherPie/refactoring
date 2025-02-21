@@ -11,6 +11,8 @@ import com.prueba.crud.entidades.Cliente;
 import com.prueba.crud.interfaces.ServicioCliente;
 import com.prueba.crud.mapper.ClienteMapper;
 import com.prueba.crud.repositorios.ClienteRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class ServicioClienteImpl implements ServicioCliente {
@@ -18,35 +20,36 @@ public class ServicioClienteImpl implements ServicioCliente {
 	@Autowired
 	ClienteRepository clienteRepository;
 	
-	
+
 	@Override
-	public ClienteDto createCliente(ClienteDto clienteDto) {
-		Cliente cliente=ClienteMapper.toEntity(clienteDto);
-		cliente=clienteRepository.save(cliente);
-		return ClienteMapper.toDto(cliente);
+	public Mono<ClienteDto> createCliente(ClienteDto clienteDto) {
+		Cliente cliente = ClienteMapper.toEntity(clienteDto);
+		return clienteRepository.save(cliente)
+				.map(ClienteMapper::toDto);
 	}
 
 	@Override
-	public ClienteDto updateCliente(ClienteDto clienteDto) {
-		Cliente cliente=ClienteMapper.toEntity(clienteDto);
-		cliente=clienteRepository.save(cliente);
-		return ClienteMapper.toDto(cliente);
+	public Mono<ClienteDto> updateCliente(ClienteDto clienteDto) {
+		Cliente cliente = ClienteMapper.toEntity(clienteDto);
+		return clienteRepository.save(cliente)
+				.map(ClienteMapper::toDto);
 	}
 
 	@Override
-	public ClienteDto getClienteById(Integer employeeId) {
-	   return ClienteMapper.toDto(clienteRepository.getReferenceById(employeeId));
+	public Mono<ClienteDto> getClienteById(Integer clienteId) {
+		return clienteRepository.findById(clienteId)
+				.map(ClienteMapper::toDto);
+	}
+
+
+	@Override
+	public Flux<ClienteDto> listaCliente() {
+		return clienteRepository.findAll()
+				.map(ClienteMapper::toDto);
 	}
 
 	@Override
-	public List<ClienteDto> listaCliente() {
-		List<Cliente> clientes = clienteRepository.findAll();
-		return clientes.stream().map((emp) -> ClienteMapper.toDto(emp)).collect(Collectors.toList());
+	public Mono<Void> deleteCliente(Integer clienteId) {
+		return clienteRepository.deleteById(clienteId);
 	}
-
-	@Override
-	public void deleteCliente(Integer clienteId) {
-		clienteRepository.deleteById(clienteId);		
-	}
-
 }

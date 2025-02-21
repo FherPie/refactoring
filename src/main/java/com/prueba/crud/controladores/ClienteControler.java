@@ -1,6 +1,5 @@
 package com.prueba.crud.controladores;
 
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.prueba.crud.dto.ClienteDto;
 import com.prueba.crud.interfaces.ServicioCliente;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
+
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -26,35 +28,34 @@ public class ClienteControler {
 	private ServicioCliente servicioCliente;
 
 	@PostMapping(value = "/clientes")
-	public ResponseEntity<ClienteDto> createCliente(@RequestBody ClienteDto clienteDto) {
-		ClienteDto createdCliente = servicioCliente.createCliente(clienteDto);
-		return new ResponseEntity<>(createdCliente, HttpStatus.CREATED);
+	public Mono<ResponseEntity<ClienteDto>> createCliente(@RequestBody ClienteDto clienteDto) {
+		return servicioCliente.createCliente(clienteDto)
+				.map(createdCliente -> new ResponseEntity<>(createdCliente, HttpStatus.CREATED));
 	}
-	
+
+
 	@GetMapping(value = "/clientes/{clienteId}")
-	public ResponseEntity<ClienteDto> getEmployee(@PathVariable("clienteId") Integer clienteId) {
-		ClienteDto cliente = servicioCliente.getClienteById(clienteId);
-	    return new ResponseEntity<>(cliente, HttpStatus.CREATED);
+	public Mono<ResponseEntity<ClienteDto>> getCliente(@PathVariable("clienteId") Integer clienteId) {
+		return servicioCliente.getClienteById(clienteId)
+				.map(cliente -> new ResponseEntity<>(cliente, HttpStatus.OK))
+				.defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
-	
+
 	@GetMapping(value = "/clientes")
-	public ResponseEntity<List<ClienteDto>> getClientes() {
-		List<ClienteDto> clientes = servicioCliente.listaCliente();
-		return new ResponseEntity<>(clientes, HttpStatus.OK);
+	public Flux<ClienteDto> getClientes() {
+		return servicioCliente.listaCliente();
 	}
-	
-	
+
+
 	@PutMapping(value = "/clientes")
-	public ResponseEntity<ClienteDto> updateCliente(@RequestBody ClienteDto clienteDto) {
-		ClienteDto createdCliente = servicioCliente.createCliente(clienteDto);
-		return new ResponseEntity<>(createdCliente, HttpStatus.CREATED);
+	public Mono<ResponseEntity<ClienteDto>> updateCliente(@RequestBody ClienteDto clienteDto) {
+		return servicioCliente.updateCliente(clienteDto)
+				.map(updatedCliente -> new ResponseEntity<>(updatedCliente, HttpStatus.OK));
 	}
-	
+
 	@DeleteMapping(value = "/clientes/{clienteId}")
-	public ResponseEntity<ClienteDto> deleteCliente(@PathVariable("clienteId") Integer clienteId) {
-	    servicioCliente.deleteCliente(clienteId);
-		return new ResponseEntity<>(HttpStatus.OK);
+	public Mono<ResponseEntity<Void>> deleteCliente(@PathVariable("clienteId") Integer clienteId) {
+		return servicioCliente.deleteCliente(clienteId)
+				.then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK)));
 	}
-	
-	
 }

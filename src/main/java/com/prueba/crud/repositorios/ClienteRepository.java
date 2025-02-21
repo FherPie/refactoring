@@ -5,11 +5,15 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+
 
 import com.prueba.crud.entidades.Cliente;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Repository
-public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
+public interface ClienteRepository extends ReactiveCrudRepository<Cliente, Integer> {
 
 	//List<Cliente> findByEmailContaining(String title);
 		
@@ -17,15 +21,14 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 	            + "DISTINCT (customer) from Cliente customer "
 	            + "WHERE "
 	            + "identificacion = :identification")
-	 List<Cliente> findClienteByIdentification(String identification);
-	  
-	  
+	  Flux<Cliente> findClienteByIdentification(String identification);
+
 	  @Query("SELECT "
 	            + "DISTINCT (cliente) from Cliente cliente "
 	            + "JOIN FETCH "
 	            + "cliente.cuentas  "
 	            + "WHERE "
 	            + "cliente.id = :clienteId")
-	 Cliente fetchClienteWithCuentasByIdentification(long clienteId);
+	  Mono<Cliente> fetchClienteWithCuentasByIdentification(long clienteId);
 	 
 }
