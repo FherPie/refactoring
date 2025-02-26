@@ -4,13 +4,14 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 
 import com.prueba.crud.entidades.Cliente;
 import com.prueba.crud.entidades.Cuenta;
 
 @Repository
-public interface CuentaRepository extends JpaRepository<Cuenta, Integer> {
+public interface CuentaRepository extends ReactiveCrudRepository<Cuenta, Integer> {
 
     @Query("select c from Cuenta c where cliente =: cliente")
 	List<Cuenta> findByCliente(Cliente cliente);

@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.prueba.crud.dto.CuentaDto;
 import com.prueba.crud.interfaces.ServicioCuenta;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -26,31 +29,36 @@ public class CuentaControler {
 	@Autowired
 	private ServicioCuenta servicioCuenta;
 
+
 	@PostMapping(value = "/cuentas")
-	public ResponseEntity<CuentaDto> createCliente(@RequestBody CuentaDto cuentaDto) {
-		CuentaDto createdCliente = servicioCuenta.createCuenta(cuentaDto);
-		return new ResponseEntity<>(createdCliente, HttpStatus.CREATED);
+	public Mono<ResponseEntity<CuentaDto>> createCliente(@RequestBody CuentaDto cuentaDto) {
+		return servicioCuenta.createCuenta(cuentaDto)
+				.map(createdCliente -> new ResponseEntity<>(createdCliente, HttpStatus.CREATED));
 	}
-	
+
+
+
 	@GetMapping(value = "/cuentas/{cuentaId}")
-	public ResponseEntity<CuentaDto> getCuenta(@PathVariable("cuentaId") Integer cuentaId) {
-		CuentaDto cliente = servicioCuenta.getClienteById(cuentaId);
-	    return new ResponseEntity<>(cliente, HttpStatus.CREATED);
+	public Mono<ResponseEntity<CuentaDto>> getCuenta(@PathVariable("cuentaId") Integer cuentaId) {
+		return servicioCuenta.getClienteById(cuentaId)
+				.map(cliente -> new ResponseEntity<>(cliente, HttpStatus.OK))
+				.defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
-	
+
+
+
 	@GetMapping(value = "/cuentas")
-	public ResponseEntity<List<CuentaDto>> getCuentas() {
-		List<CuentaDto> clientes = servicioCuenta.listaCuenta();
-		return new ResponseEntity<>(clientes, HttpStatus.OK);
+	public Flux<CuentaDto> getCuentas() {
+		return servicioCuenta.listaCuenta();
 	}
-	
-	
+
+
 	@PutMapping(value = "/cuentas")
-	public ResponseEntity<CuentaDto> updateCuenta(@RequestBody CuentaDto cuentaDto) {
-		CuentaDto createdCliente = servicioCuenta.updateCuenta(cuentaDto);
-		return new ResponseEntity<>(createdCliente, HttpStatus.CREATED);
+	public Mono<ResponseEntity<CuentaDto>> updateCuenta(@RequestBody CuentaDto cuentaDto) {
+		return servicioCuenta.updateCuenta(cuentaDto)
+				.map(updatedCliente -> new ResponseEntity<>(updatedCliente, HttpStatus.OK));
 	}
-	
+
 	@DeleteMapping(value = "/cuentas/{cuentaId}")
 	public ResponseEntity<CuentaDto> deleteCuenta(@PathVariable("cuentaId") Integer cuentaId) {
 	    servicioCuenta.deleteCuenta(cuentaId);

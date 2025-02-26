@@ -6,13 +6,14 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 
 import com.prueba.crud.entidades.Cuenta;
 import com.prueba.crud.entidades.Movimiento;
 
 @Repository
-public interface MovimientoRepository extends JpaRepository<Movimiento, Integer> {
+public interface MovimientoRepository extends ReactiveCrudRepository<Movimiento, Integer> {
 
 	public List<Movimiento> findAllByOrderByFechaDesc();
 	

@@ -15,6 +15,8 @@ import com.prueba.crud.interfaces.ServicioMovimiento;
 import com.prueba.crud.mapper.MovimientoMapper;
 import com.prueba.crud.repositorios.CuentaRepository;
 import com.prueba.crud.repositorios.MovimientoRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @Transactional
@@ -28,69 +30,63 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 
 
 	@Override
-	public MovimientoDto createMovimiento(MovimientoDto movimientoDto) {
-		Optional<Cuenta> cuenta = cuentaRepository.findById(movimientoDto.getCuentaId());
-		return crearMovimiento(cuenta.get(), movimientoDto);
+	public Mono<MovimientoDto> createMovimiento(MovimientoDto movimientoDto) {
+		return cuentaRepository.findById(movimientoDto.getCuentaId())
+				.flatMap(cuenta -> crearMovimiento(cuenta, movimientoDto))
+				.switchIfEmpty(Mono.error(new RuntimeException("Cuenta no encontrada")));
 	}
-	
-	
-	
-	private MovimientoDto crearMovimiento(Cuenta cuenta, MovimientoDto requestMovimiento) {
-		try {
-			Movimiento movimiento = null;		
-				if (requestMovimiento.getValor() < 0.0) {
-					Double valorAbsotulo= Math.abs(requestMovimiento.getValor());
-					
-					if (valorAbsotulo > cuenta.getSaldo() ) { // Mayor retiro que saldo inicial																						// saldo incial
-						return MovimientoDto.builder().mensaje("SALDO_NO_DISPONIBLE").build();
-					} else {			
-						movimiento = Movimiento.builder().cuenta(cuenta).fecha(requestMovimiento.getFecha())
-								.tipo("RETIRO").valor(requestMovimiento.getValor()).build();
-						movimiento=movimientoRepository.save(movimiento);
-					}
-				} else {
-					movimiento = Movimiento.builder().cuenta(cuenta).fecha(requestMovimiento.getFecha())
-							.tipo("DEPOSITO").valor(requestMovimiento.getValor()).build();
-					movimiento=movimientoRepository.save(movimiento);
-				}
-				cuenta.setSaldo(cuenta.getSaldo()+requestMovimiento.getValor());
-				cuentaRepository.save(cuenta);
-				MovimientoDto dto=MovimientoMapper.toDto(movimiento);
-				dto.setMensaje("EXITO");
-				return dto;
-		} catch (Exception e) {
-			throw e;
+
+
+	private Mono<MovimientoDto> crearMovimiento(Cuenta cuenta, MovimientoDto requestMovimiento) {
+		Movimiento movimiento = MovimientoMapper.toEntity(requestMovimiento);
+		movimiento.setCuenta(cuenta);
+
+		if (requestMovimiento.getValor() < 0.0) {
+			Double valorAbsoluto = Math.abs(requestMovimiento.getValor());
+			if (valorAbsoluto > cuenta.getSaldo()) {
+				return Mono.just(MovimientoDto.builder().mensaje("SALDO_NO_DISPONIBLE").build());
+			}
 		}
+
+		cuenta.setSaldo(cuenta.getSaldo() + requestMovimiento.getValor());
+		return cuentaRepository.save(cuenta)
+				.then(movimientoRepository.save(movimiento))
+				.map(savedMovimiento -> {
+					MovimientoDto dto = MovimientoMapper.toDto(savedMovimiento);
+					dto.setMensaje("EXITO");
+					return dto;
+				});
 	}
-	
-	
-	
-	
-	
+
 
 	@Override
-	public MovimientoDto updateMovimiento(MovimientoDto movimientoDto) {
-		Movimiento movimiento=MovimientoMapper.toEntity(movimientoDto);
-		movimiento=movimientoRepository.save(movimiento);
-		return MovimientoMapper.toDto(movimiento);
+	public Mono<MovimientoDto> updateMovimiento(MovimientoDto movimientoDto) {
+		return movimientoRepository.findById(movimientoDto.getMovimientoId())
+				.flatMap(existingMovimiento -> {
+					Movimiento movimiento = MovimientoMapper.toEntity(movimientoDto);
+					movimiento.setCuenta(existingMovimiento.getCuenta());
+					return movimientoRepository.save(movimiento)
+							.map(MovimientoMapper::toDto);
+				})
+				.switchIfEmpty(Mono.error(new RuntimeException("Movimiento no encontrado")));
 	}
 
 	@Override
-	public MovimientoDto getMovimientoById(Integer movimientoId) {
-		  return MovimientoMapper.toDto(movimientoRepository.getReferenceById(movimientoId));
+	public Mono<MovimientoDto> getMovimientoById(Integer movimientoId) {
+		return movimientoRepository.findById(movimientoId)
+				.map(MovimientoMapper::toDto);
 	}
 
 	@Override
-	public List<MovimientoDto> listaMovimiento() {
-		List<Movimiento> movimientos = movimientoRepository.findAll();
-		return movimientos.stream().map((emp) -> MovimientoMapper.toDto(emp)).collect(Collectors.toList());
+	public Flux<MovimientoDto> listaMovimiento() {
+		return movimientoRepository.findAll()
+				.map(MovimientoMapper::toDto);
 	}
 
 	@Override
-	public void deleteMovimiento(Integer cuentaId) {
-		movimientoRepository.deleteById(cuentaId);	
+	public Mono<Void> deleteMovimiento(Integer movimientoId) {
+		return movimientoRepository.deleteById(movimientoId);
 	}
-
 
 
 }
