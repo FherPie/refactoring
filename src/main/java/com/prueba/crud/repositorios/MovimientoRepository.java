@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.prueba.crud.entidades.Cuenta;
 import com.prueba.crud.entidades.Movimiento;
+import reactor.core.publisher.Flux;
 
 @Repository
 public interface MovimientoRepository extends ReactiveCrudRepository<Movimiento, Integer> {
@@ -18,7 +19,7 @@ public interface MovimientoRepository extends ReactiveCrudRepository<Movimiento,
 	public List<Movimiento> findAllByOrderByFechaDesc();
 	
     @Query("select m from Movimiento m where cuenta =: cuenta")
-	List<Movimiento> findByCuenta(Cuenta cuenta);
+    Flux<Movimiento> findByCuenta(Cuenta cuenta);
 	
   
     @Query("SELECT "
@@ -27,7 +28,7 @@ public interface MovimientoRepository extends ReactiveCrudRepository<Movimiento,
             + "movimiento.cuenta cuenta  "
             + "WHERE "
             + "cuenta.id = :cuentaId")
-    List<Movimiento> fecthByCuentaId(long cuentaId);
+    Flux<Movimiento> fecthByCuentaId(long cuentaId);
 		
 	
     
@@ -37,7 +38,7 @@ public interface MovimientoRepository extends ReactiveCrudRepository<Movimiento,
             + "movimiento.cuenta cuenta  "
             + "WHERE "
             + "cuenta.numero = :numeroCuenta")
-    List<Movimiento> fecthByNumeroCuenta(String numeroCuenta);
+    Flux<Movimiento> fecthByNumeroCuenta(String numeroCuenta);
 		
     
 
@@ -47,7 +48,7 @@ public interface MovimientoRepository extends ReactiveCrudRepository<Movimiento,
             + "movimiento.cuenta.cliente cliente  "
             + "WHERE "
             + "cliente.id = :clienteId  and movimiento.fecha BETWEEN :startDate AND :endDate")
-    List<Movimiento> fecthMovimientoBetweenDatesAndClientID(@Param("startDate")Date startDate,@Param("endDate")Date endDate, long clienteId);
+    Flux<Movimiento> fecthMovimientoBetweenDatesAndClientID(@Param("startDate")Date startDate,@Param("endDate")Date endDate, long clienteId);
     
 
 }
