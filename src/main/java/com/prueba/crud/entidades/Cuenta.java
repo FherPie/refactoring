@@ -8,7 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -16,9 +16,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table
+@Table("cuentas")
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,7 +27,6 @@ import org.springframework.data.relational.core.mapping.Table;
 public class Cuenta {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer cuentaId;
 	
 	@Column(name = "numeroCuenta")
@@ -40,12 +40,10 @@ public class Cuenta {
 	
 	@Column(name = "estado")
     private String estado;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="cliente_Id")
-	private Cliente cliente;
-	
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy="cuenta")
+
+	private Integer clienteId;
+
+	@MappedCollection(idColumn = "movimiento_Id")
 	private List<Movimiento> movimientos;
 	
 

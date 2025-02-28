@@ -18,7 +18,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table
+@Table("movimientos")
 @Data
 @Builder
 @AllArgsConstructor
@@ -26,7 +26,6 @@ import org.springframework.data.relational.core.mapping.Table;
 public class Movimiento {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer movimientoId;
 	
 	@Column(name = "tipoMovimiento")
@@ -39,9 +38,7 @@ public class Movimiento {
 	@Column(name = "fecha")
 	private Date fecha;
 	
-	
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name="cuenta_Id")
-	private Cuenta cuenta;
+
+	private Integer cuentaId;
 	
 }

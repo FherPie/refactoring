@@ -39,7 +39,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 
 	private Mono<MovimientoDto> crearMovimiento(Cuenta cuenta, MovimientoDto requestMovimiento) {
 		Movimiento movimiento = MovimientoMapper.toEntity(requestMovimiento);
-		movimiento.setCuenta(cuenta);
+		//movimiento.setCuenta(cuenta);
 
 		if (requestMovimiento.getValor() < 0.0) {
 			Double valorAbsoluto = Math.abs(requestMovimiento.getValor());
@@ -64,7 +64,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		return movimientoRepository.findById(movimientoDto.getMovimientoId())
 				.flatMap(existingMovimiento -> {
 					Movimiento movimiento = MovimientoMapper.toEntity(movimientoDto);
-					movimiento.setCuenta(existingMovimiento.getCuenta());
+					//movimiento.setCuenta(existingMovimiento.getCuenta());
 					return movimientoRepository.save(movimiento)
 							.map(MovimientoMapper::toDto);
 				})

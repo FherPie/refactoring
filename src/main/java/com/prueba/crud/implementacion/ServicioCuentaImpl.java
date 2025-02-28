@@ -29,7 +29,7 @@ public class ServicioCuentaImpl implements ServicioCuenta {
 		return clienteRepository.findById(cuentaDto.getClienteId()) // Busca el cliente de manera reactiva
 				.flatMap(cliente -> { // Si el cliente existe, continúa con el flujo
 					Cuenta cuenta = CuentaMapper.toEntity(cuentaDto); // Mapea el DTO a la entidad
-					cuenta.setCliente(cliente); // Asocia el cliente a la cuenta
+					//cuenta.setCliente(cliente); // Asocia el cliente a la cuenta
 					return cuentaRepository.save(cuenta) // Guarda la cuenta de manera reactiva
 							.map(CuentaMapper::toDto); // Mapea la entidad guardada de vuelta al DTO
 				})
@@ -45,7 +45,7 @@ public class ServicioCuentaImpl implements ServicioCuenta {
 					// Mapea el DTO a la entidad
 					Cuenta cuenta = CuentaMapper.toEntity(cuentaDto);
 					// Actualiza los detalles de la cuenta existente con los nuevos valores
-					cuenta.setCliente(existingCuenta.getCliente()); // Mantiene el cliente asociado
+					//cuenta.setCliente(existingCuenta.getCliente()); // Mantiene el cliente asociado
 					// Guarda la cuenta actualizada de manera reactiva
 					return cuentaRepository.save(cuenta)
 							.map(CuentaMapper::toDto); // Mapea la entidad guardada de vuelta al DTO

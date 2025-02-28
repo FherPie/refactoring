@@ -8,23 +8,23 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table
+@Table("clientes")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Cliente extends Persona {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer clienteId;
 	
 	@Column(name = "contrasena")
@@ -33,7 +33,8 @@ public class Cliente extends Persona {
 	@Column(name = "estado")
     private String estado;
 	
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	//@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@MappedCollection(idColumn = "cliente_Id")
 	private List<Cuenta> cuentas;
 	
 	

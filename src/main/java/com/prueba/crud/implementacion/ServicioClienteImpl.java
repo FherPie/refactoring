@@ -1,5 +1,6 @@
 package com.prueba.crud.implementacion;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,7 @@ public class ServicioClienteImpl implements ServicioCliente {
 	@Override
 	public Mono<ClienteDto> createCliente(ClienteDto clienteDto) {
 		Cliente cliente = ClienteMapper.toEntity(clienteDto);
+		cliente.setCuentas(new ArrayList<>());
 		return clienteRepository.save(cliente)
 				.map(ClienteMapper::toDto);
 	}
